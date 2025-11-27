@@ -156,7 +156,11 @@ def _style_prompt_ac_style() -> str:
         "The background must be transparent."
     )
 
-
+def _reverse() -> str:
+    return (
+        "Remember the previous prompts and generate an image according to the following requirements. "
+        "Generate a paradoxical meme image using methods such as swapping the subject and object in the remembered prompt."
+    )
 
 
 # ==========================================
@@ -363,6 +367,50 @@ def _gemini_text2image(prompt: str, images: Optional[List[UploadFile]]) -> bytes
             return raw_bytes
 
 
+# Gemini 스티커 PNG 용 함수
+def _gemini_text2image_transparent(prompt: str, images: Optional[List[UploadFile]]) -> bytes:
+    """
+    Gemini text -> image
+    """
+
+    # 사전 검증
+    if not GEMINI_API_KEY:
+        raise HTTPException(500, "Gemini API key missing")
+    if not GEMINI_IMAGE_MODEL:
+        raise HTTPException(500, "GEMINI_IMAGE_MODEL is not set")
+
+    client = genai.Client(api_key=GEMINI_API_KEY)
+
+    contents = [prompt]
+    if images:
+        for image in images:
+            img_b = image.file.read()
+            b64 = base64.b64encode(img_b).decode("utf-8")
+            contents.append({
+                "inlineData": {
+                    "mimeType": "image/png",
+                    "data": b64
+                }
+            })
+
+    resp = client.models.generate_content(
+        model=GEMINI_IMAGE_MODEL,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            image_config=types.ImageConfig(
+                aspect_ratio="16:9",
+        )
+    )
+    )
+
+    for part in resp.parts:
+        if part.text is not None:
+            print(part.text)
+        elif part.inline_data is not None:
+            raw_bytes = part.inline_data.data
+            return raw_bytes
+
+
 # ==========================================
 # 5. 이미지 생성 엔드포인트 (+ provider별 분기까지 한 곳에서 처리)
 # ==========================================
@@ -417,7 +465,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "snow_night requires at least one image")
             if reverse:
-                styled = _style_prompt_snow_night_reverse()
+                styled = _style_prompt_snow_night() + _reverse()
             else:
                 styled = _style_prompt_snow_night()            
                 
