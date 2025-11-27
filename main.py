@@ -437,15 +437,21 @@ async def generate_image(
         if provider == Provider.GPT:
             if not images:
                 logger.info("[generate_image] GPT text2image (no refs)")
+                if reverse:
+                    prompt = prompt + _reverse()
                 img_bytes = _openai_text2image(prompt)              # JPEG 생성 가정
             else:
                 logger.info(f"[generate_image] GPT text2image with refs (count={len(images)})")
+                if reverse:
+                    prompt = prompt + _reverse()
                 img_bytes = _openai_text_with_refs(prompt, images)  # JPEG 생성 가정
             media_type = "image/jpeg"
 
         
         # ----- 기본 Gemini provider -----
         elif provider == Provider.GEMINI:
+            if reverse:
+                prompt = prompt + _reverse()
             img_bytes = _gemini_text2image(prompt, images)
             media_type = "image/jpeg"
 
