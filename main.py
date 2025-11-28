@@ -142,7 +142,6 @@ def _style_prompt_pixel_art() -> str:
         "The background should be transparent (PNG), and only the complete character should be included. "
         "The character should be full size and must not be cropped or cut off at the top or bottom (there should be a slight gap). "
         "Also, white-colored areas in the character (such as eyes, dress, etc.) should not be transparent — they should be filled with actual white color. "
-        "The background must be transparent."
     )
 
 def _style_prompt_ac_style() -> str:
@@ -153,7 +152,6 @@ def _style_prompt_ac_style() -> str:
         "accessories. Make the background transparent, and create a warm and lively atmosphere by using "
         "bright sunlight and soft shadows under natural light. The character should look like one that appears "
         "in an actual Animal Crossing gameplay screen. Make sure the 3D aspect is clearly shown. "
-        "The background must be transparent."
     )
 
 def _reverse() -> str:
