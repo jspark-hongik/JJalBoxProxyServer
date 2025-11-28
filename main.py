@@ -236,46 +236,46 @@ def _openai_text_with_refs(
     return raw_bytes
 
 # GPT-Image-1 스티커 PNG 용 함수
-# def _openai_text_with_refs_transparent(
-#     prompt: str,
-#     images: List[UploadFile],
-# ) -> bytes:
-#     """
-#     GPT-Image-1 text + reference images -> image
-#     - 업로드된 이미지를 참조로 쓰는 text2image
-#     - 투명 배경 PNG 생성용
-#     """
-#     # 사전 검증
-#     if not OPENAI_API_KEY:
-#         raise HTTPException(500, "OpenAI API key missing")
-#     if not OPENAI_IMAGE_MODEL:
-#         raise HTTPException(500, "OPENAI_IMAGE_MODEL is not set")
-#     if not images or len(images) == 0:
-#         raise HTTPException(400, "No reference images provided")
-#
-#     client = OpenAI(api_key=OPENAI_API_KEY)
-#
-#     # UploadFile → file-like objects 준비
-#     file_objs = []
-#     for upload in images:
-#         raw = upload.file.read()
-#         fixed = _png_bytes(raw)
-#         bio = io.BytesIO(fixed)
-#         bio.name = upload.filename or "ref.png"
-#         file_objs.append(bio)
-#
-#     resp = client.images.edit(
-#         model = OPENAI_IMAGE_MODEL,
-#         image = file_objs,             # 리스트 of file-like
-#         size="1024x1024",
-#         prompt = prompt,
-#         n = 1,
-#         background="transparent",
-#         output_format="png",
-#     )
-#
-#     raw_bytes = base64.b64decode(resp.data[0].b64_json)
-#     return raw_bytes
+def _openai_text_with_refs_transparent(
+    prompt: str,
+    images: List[UploadFile],
+) -> bytes:
+    """
+    GPT-Image-1 text + reference images -> image
+    - 업로드된 이미지를 참조로 쓰는 text2image
+    - 투명 배경 PNG 생성용
+    """
+    # 사전 검증
+    if not OPENAI_API_KEY:
+        raise HTTPException(500, "OpenAI API key missing")
+    if not OPENAI_IMAGE_MODEL:
+        raise HTTPException(500, "OPENAI_IMAGE_MODEL is not set")
+    if not images or len(images) == 0:
+        raise HTTPException(400, "No reference images provided")
+
+    client = OpenAI(api_key=OPENAI_API_KEY)
+
+    # UploadFile → file-like objects 준비
+    file_objs = []
+    for upload in images:
+        raw = upload.file.read()
+        fixed = _png_bytes(raw)
+        bio = io.BytesIO(fixed)
+        bio.name = upload.filename or "ref.png"
+        file_objs.append(bio)
+
+    resp = client.images.edit(
+        model = OPENAI_IMAGE_MODEL,
+        image = file_objs,             # 리스트 of file-like
+        size="1024x1024",
+        prompt = prompt,
+        n = 1,
+        background="transparent",
+        output_format="png",
+    )
+
+    raw_bytes = base64.b64decode(resp.data[0].b64_json)
+    return raw_bytes
 
 def _openai_img_edit(
     prompt: str,
@@ -483,7 +483,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "pixel_art requires at least one image")
             styled = _style_prompt_pixel_art()
-            img_bytes = _gemini_text2image(styled, images)       # PNG + 투명 배경 생성
+            img_bytes = _openai_text_with_refs_transparent(styled, images)       # PNG + 투명 배경 생성
             media_type = "image/png"
 
         # ----- 동물의 숲 스타일 스티커 (PNG + transparent) -----
@@ -491,7 +491,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "ac_style requires at least one image")
             styled = _style_prompt_ac_style()
-            img_bytes = _gemini_text2image(styled, images)       # PNG + 투명 배경 생성
+            img_bytes = _openai_text_with_refs_transparent(styled, images)       # PNG + 투명 배경 생성
             media_type = "image/png"
 
         else:
