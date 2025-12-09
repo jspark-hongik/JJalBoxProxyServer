@@ -52,8 +52,8 @@ class Provider(str, Enum):
     AC_STYLE = "ac_style"
 
 # 환경 변수 로딩
-# load_dotenv(os.getenv("ENV_PATH")) # 로컬용, AWS에서는 콘솔에서 env 값 등록
-load_dotenv() # AWS용
+load_dotenv(os.getenv("ENV_PATH")) # 로컬용, AWS에서는 콘솔에서 env 값 등록
+# load_dotenv() # AWS용
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 OPENAI_BASE = os.getenv("OPENAI_BASE_URL", "")
@@ -481,7 +481,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "pixel_art requires at least one image")
             styled = _style_prompt_pixel_art()
-            img_bytes = _openai_text_with_refs_transparent(styled, images)       # PNG + 투명 배경 생성
+            img_bytes = _gemini_text2image(styled, images)       # PNG + 투명 배경 생성
             media_type = "image/png"
 
         # ----- 동물의 숲 스타일 스티커 (PNG + transparent) -----
@@ -489,7 +489,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "ac_style requires at least one image")
             styled = _style_prompt_ac_style()
-            img_bytes = _openai_text_with_refs_transparent(styled, images)       # PNG + 투명 배경 생성
+            img_bytes = _gemini_text2image(styled, images)       # PNG + 투명 배경 생성
             media_type = "image/png"
 
         else:
