@@ -133,15 +133,14 @@ def _style_prompt_snow_night_reverse() -> str:
         """Recreate a humorous, subversive meme image composed of three vertically arranged cuts, featuring a snowman in a snowy, blue-hour landscape, wearing an oversized black coat and a vibrant cobalt blue knit scarf, holding a small wildflower bouquet. Instead of snowflakes, numerous tiny, clearly recognizable faces of the person from the attached example images are comically falling from the sky like snow.
 
 The first cut is dimly lit, capturing the snowman from behind, looking out at a wide, snow-covered plain with distant, dark mountains. The second cut is slightly brighter, showing the snowman in a mid-shot, gazing upwards by a flowing, snow-banked river with a dense pine forest in the background. The third cut is dimly lit, an extreme close-up focused solely on the snowman's face and the blue scarf, softly illuminated by a frontal light source, with large, out-of-focus tiny faces of the person falling in the foreground. Each cut uses a shallow depth of field against the cool blue twilight, maintaining the original cinematic quality despite the absurd subject."""
-)
+    )
 
 def _style_prompt_pixel_art() -> str:
     return (
         "Study the pixel art style of Everskies, and imitate the way it depicts body shape, facial features and expressions, clothing, and hairstyle. "
         "Using the hairstyle, outfit, and accessories of the person in the attached image, create a full-body character illustration. "
-        "The background should be transparent (PNG), and only the complete character should be included. "
         "The character should be full size and must not be cropped or cut off at the top or bottom (there should be a slight gap). "
-        "Also, white-colored areas in the character (such as eyes, dress, etc.) should not be transparent — they should be filled with actual white color. "
+        "Make the background to solid white color background."
     )
 
 def _style_prompt_ac_style() -> str:
@@ -149,17 +148,22 @@ def _style_prompt_ac_style() -> str:
         "Study the 3D character illustration style of the Nintendo Switch game Animal Crossing, "
         "and follow its way of depicting facial features, clothing, and hairstyles. Using that style, "
         "draw an illustration of the person in the attached image, replicating their hairstyle and clothing "
-        "accessories. Make the background transparent, and create a warm and lively atmosphere by using "
+        "accessories. Create a warm and lively atmosphere by using "
         "bright sunlight and soft shadows under natural light. The character should look like one that appears "
         "in an actual Animal Crossing gameplay screen. Make sure the 3D aspect is clearly shown. "
+        "Make the background to solid white color background."
     )
 
 def _reverse() -> str:
     return (
-        "Remember the previous prompts and generate an image according to the following requirements. "
-        "Generate a paradoxical meme image using methods such as swapping the subject and object in the remembered prompt."
+        " Remember the previous prompts and generate an image according to the following requirements. "
+        "Generate a paradoxical meme image using methods such as swapping the subject and object in the remembered prompt. "
+        "For example, switch things around like changing \'a dog bites a person\' to "
+        "\'a person bites a dog,\' or \'a person goes to a building\' to \'a building comes to a person.\' "
+        "Do not add new subtitles or sentences in the image. If an image is attached, maintain the original art style;" # 사용자 프롬프트 상에서 언급이 없었으면 자막이나 문장 추가하지 말 것을 명시
+        " if no image is attached, generate an image that fits the Korean meme style."
     )
-
+# 사용자 프롬프트 상에서 언급이 없었으면 자막이나 문장 추가하지 말 것을 명시 - 예)Do not add new subtitles or sentences in the image if there was no request in previous prompts.
 
 # ==========================================
 # 4. 벤더 호출 함수 (실제 OpenAI/Gemini API 호출)
@@ -471,8 +475,8 @@ async def generate_image(
             if reverse:
                 styled = _style_prompt_snow_night() + _reverse()
             else:
-                styled = _style_prompt_snow_night()            
-                
+                styled = _style_prompt_snow_night()
+
             img_bytes = _gemini_text2image(styled, images)             # JPEG 생성 가정
             media_type = "image/jpeg"
 
