@@ -160,7 +160,7 @@ def _reverse() -> str:
         "Generate a paradoxical meme image using methods such as swapping the subject and object in the remembered prompt. "
         "For example, switch things around like changing \'a dog bites a person\' to "
         "\'a person bites a dog,\' or \'a person goes to a building\' to \'a building comes to a person.\' "
-        "Do not add new subtitles or sentences in the image. If an image is attached, maintain the original art style;" # 사용자 프롬프트 상에서 언급이 없었으면 자막이나 문장 추가하지 말 것을 명시
+        "Do not add new subtitles or sentences in the image if there was no request in previous prompts. If an image is attached, maintain the original art style;" # 사용자 프롬프트 상에서 언급이 없었으면 자막이나 문장 추가하지 말 것을 명시
         " if no image is attached, generate an image that fits the Korean meme style."
     )
 # 사용자 프롬프트 상에서 언급이 없었으면 자막이나 문장 추가하지 말 것을 명시 - 예)Do not add new subtitles or sentences in the image if there was no request in previous prompts.
@@ -358,7 +358,8 @@ def _gemini_text2image(prompt: str, images: Optional[List[UploadFile]]) -> bytes
 
     resp = client.models.generate_content(
         model=GEMINI_IMAGE_MODEL,
-        contents=contents
+        contents=contents,
+        tools=[{"google_search": {}}]
     )
 
     for part in resp.parts:
