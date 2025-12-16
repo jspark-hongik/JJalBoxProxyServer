@@ -359,7 +359,9 @@ def _gemini_text2image(prompt: str, images: Optional[List[UploadFile]]) -> bytes
     resp = client.models.generate_content(
         model=GEMINI_IMAGE_MODEL,
         contents=contents,
-        tools=[{"google_search": {}}]
+        config=types.GenerateContentConfig(
+            tools=[{"google_search": {}}]
+        )
     )
 
     for part in resp.parts:
