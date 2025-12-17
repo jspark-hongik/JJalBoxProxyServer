@@ -46,7 +46,6 @@ def _debug_log_images(tag: str, images: list[UploadFile] | None):
 class Provider(str, Enum):
     GPT = "gpt"
     GEMINI = "gemini"
-    MEME_GALTEYA = "meme_galteya"
     SNOW_NIGHT = "snow_night"
     PIXEL_ART = "pixel_art"
     AC_STYLE = "ac_style"
@@ -99,27 +98,10 @@ def _png_bytes(img_bytes: bytes) -> bytes:
         # (예: 이미지가 아니거나 손상된 경우)
         return img_bytes
 
-def _normalize_upload_image(upload: UploadFile):
-    """
-    업로드된 이미지를 읽어서:
-      - 지원하지 않는 포맷이면 PNG로 변환
-      - (바이트, mime, filename) 튜플로 반환
-    """
-    ...
-
-def _http_err_from_requests(resp: requests.Response):
-    """requests.Response를 HTTPException으로 변환 (디버그용 에러 메시지 포함)."""
-    ...
-
-
 # ==========================================
 # 3. 스타일 프롬프트 헬퍼
 #    (Provider별 스타일 설명을 프롬프트에 얹는 역할)
 # ==========================================
-
-def _style_prompt_meme_galteya(prompt: str) -> str:
-    """갈테야테야 밈 스타일용 프롬프트 래핑."""
-    ...
 
 def _style_prompt_snow_night() -> str:
     return (
@@ -457,17 +439,6 @@ async def generate_image(
             img_bytes = _gemini_text2image(prompt, images)
             media_type = "image/jpeg"
 
-        # ----- 갈테야 밈 (JPEG) -----
-        elif provider == Provider.MEME_GALTEYA:
-            styled = _style_prompt_meme_galteya(prompt)
-            if not images:
-                logger.info("[generate_image] MEME_GALTEYA text2image (no refs)")
-                img_bytes = _openai_text2image(styled)              # JPEG
-            else:
-                logger.info(f"[generate_image] MEME_GALTEYA with refs (count={len(images)})")
-                img_bytes = _openai_text_with_refs(styled, images)  # JPEG
-            media_type = "image/jpeg"
-
         # ----- 눈 내리는 밤 (Gemini img2img, JPEG) -----
         elif provider == Provider.SNOW_NIGHT:
             if not images:
@@ -511,63 +482,3 @@ async def generate_image(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ==========================================
-# 7. Meme Template Based Feature (기존 기능)
-# ==========================================
-
-# 템플릿 로드
-# with open("templates/galteya.json", "r", encoding="utf-8") as f:
-#     TEMPLATE_GALTEYA = json.load(f)
-
-@app.get("/v1/templates")
-def list_templates():
-    """템플릿 목록 조회."""
-    ...
-
-@app.get("/v1/templates/{tid}")
-def get_template(tid: str):
-    """특정 템플릿 상세 조회."""
-    ...
-
-@app.post("/v1/memes/{tid}/generate")
-async def generate_meme(
-    tid: str,
-    inputs: str = Form(...),
-    files: List[UploadFile] = File(None),
-):
-    """
-    템플릿 기반 밈 이미지 생성:
-      - base_url 이미지를 가져와,
-      - slots 정보에 따라 텍스트 합성,
-      - inpaint 영역(mask) 모아서 _call_inpaint로 OpenAI 이미지 편집 요청.
-    """
-    ...
-
-
-# ==========================================
-# 8. 템플릿/인페인팅 내부 유틸
-# ==========================================
-
-def _draw_text(img, text, bbox, font_spec):
-    """지정된 bbox 영역에 텍스트를 렌더링."""
-    ...
-
-def _merge_masks(mask_images):
-    """여러 개의 마스크 이미지를 하나로 합성."""
-    ...
-
-def _call_inpaint(base_bytes, mask_bytes, prompt):
-    """OpenAI /images/edits로 인페인팅 호출."""
-    ...
-
-
-@app.post("/api/meme_edit")
-async def edit_meme_image(
-    prompt: str = Form(...),
-    base_image: UploadFile = File(...),
-    mask_image: UploadFile = File(...)
-):
-    """테스트용 인페인팅 엔드포인트."""
-    ...
