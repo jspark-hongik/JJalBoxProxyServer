@@ -141,11 +141,16 @@ def _reverse() -> str:
 def _reverse_test() -> str:
     return (
         """
-Based on the input above, generate a humorous image depicting a 'Role Reversal'.
-1. **Concept**: Swap the subject and object of the user's input to create an absurd situation (e.g., A building walking into a person, A hamburger eating a human).
-2. **Style**: Korean Internet Meme Style (Jjal-bang vibe). Use a 'B-class' comic sensibility.
-3. **Visuals**: Use a Fish-eye lens effect or dramatic close-up angles. Characters should have hilariously exaggerated, serious, or bewildered facial expressions.
-4. **Constraint**: Do NOT include any text, captions, or speech bubbles in the image. Pure visual comedy only.
+(시스템 지시사항)
+당신은 인터넷에서 가장 웃기고 엉뚱한 밈(Meme)을 만드는 AI입니다.
+사용자의 입력을 바탕으로 상식을 깨는 역발상적인 '짤방' 이미지를 생성해야 합니다.
+
+(스타일 가이드)
+- 화풍: 일부러 조잡하게 그린 B급 감성, 저화질 인터넷 짤방 스타일, 혼란스럽고 기괴한 분위기.
+- 핵심: 내용을 아주 진지하게 문자 그대로 해석하되, 상황을 극단적이고 바보스럽게 과장해서 표현할 것.
+
+(주제)
+다음 내용을 바탕으로 세상에서 제일 황당한 밈 이미지를 만들어라: 
 """
     )
 
