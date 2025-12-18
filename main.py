@@ -16,8 +16,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont
-import json
+from PIL import Image
 
 # 디버깅
 import logging
@@ -110,13 +109,6 @@ def _style_prompt_snow_night() -> str:
 The first cut is dimly lit, capturing the person from behind, looking out at a wide, snow-covered plain with distant, dark mountains. The second cut is slightly brighter, showing the person in a mid-shot, gazing upwards by a flowing, snow-banked river with a dense pine forest in the background. The third cut is dimly lit, an extreme close-up focused solely on the person's face and the blue scarf, softly illuminated by a frontal light source, with large, out-of-focus snowflakes in the foreground. Each cut uses a shallow depth of field against the cool blue twilight."""
     )
 
-def _style_prompt_snow_night_reverse() -> str:
-    return (
-        """Recreate a humorous, subversive meme image composed of three vertically arranged cuts, featuring a snowman in a snowy, blue-hour landscape, wearing an oversized black coat and a vibrant cobalt blue knit scarf, holding a small wildflower bouquet. Instead of snowflakes, numerous tiny, clearly recognizable faces of the person from the attached example images are comically falling from the sky like snow.
-
-The first cut is dimly lit, capturing the snowman from behind, looking out at a wide, snow-covered plain with distant, dark mountains. The second cut is slightly brighter, showing the snowman in a mid-shot, gazing upwards by a flowing, snow-banked river with a dense pine forest in the background. The third cut is dimly lit, an extreme close-up focused solely on the snowman's face and the blue scarf, softly illuminated by a frontal light source, with large, out-of-focus tiny faces of the person falling in the foreground. Each cut uses a shallow depth of field against the cool blue twilight, maintaining the original cinematic quality despite the absurd subject."""
-    )
-
 def _style_prompt_pixel_art() -> str:
     return (
         "Study the pixel art style of Everskies, and imitate the way it depicts body shape, facial features and expressions, clothing, and hairstyle. "
@@ -142,10 +134,16 @@ def _reverse() -> str:
         "Generate a paradoxical meme image using methods such as swapping the subject and object in the remembered prompt. "
         "For example, switch things around like changing \'a dog bites a person\' to "
         "\'a person bites a dog,\' or \'a person goes to a building\' to \'a building comes to a person.\' "
-        "Do not add new subtitles or sentences in the image if there was no request in previous prompts. If an image is attached, maintain the original art style;" # 사용자 프롬프트 상에서 언급이 없었으면 자막이나 문장 추가하지 말 것을 명시
+        "Do not add new subtitles or sentences in the image if there was no request in previous prompts. If an image is attached, maintain the original art style;"
         " if no image is attached, generate an image that fits the Korean meme style."
     )
-# 사용자 프롬프트 상에서 언급이 없었으면 자막이나 문장 추가하지 말 것을 명시 - 예)Do not add new subtitles or sentences in the image if there was no request in previous prompts.
+
+def _reverse_test() -> str:
+    return (
+        "; 이전 프롬프트들을 기억하고 다음의 요구 사항에 따라 이미지를 생성하세요. 이전 프롬프트 속의 주어와 목적어를 바꾸는 등의 방식을 사용하여 한국 스타일의 웃긴 밈 이미지를 만드세요. "
+        "예를 들어, '개가 사람을 문다'를 '사람이 개를 문다'로 바꾸거나, '사람이 건물로 가다'를 '건물이 사람에게 가다'와 같이 상황을 뒤바꾸어 표현하세요. "
+        "이미지에 자막이나 말풍선을 추가하지 마세요."
+    )
 
 # ==========================================
 # 4. 벤더 호출 함수 (실제 OpenAI/Gemini API 호출)
@@ -422,12 +420,12 @@ async def generate_image(
             if not images:
                 logger.info("[generate_image] GPT text2image (no refs)")
                 if reverse:
-                    prompt = prompt + _reverse()
+                    prompt = prompt + _reverse_test()
                 img_bytes = _openai_text2image(prompt)              # JPEG 생성 가정
             else:
                 logger.info(f"[generate_image] GPT text2image with refs (count={len(images)})")
                 if reverse:
-                    prompt = prompt + _reverse()
+                    prompt = prompt + _reverse_test()
                 img_bytes = _openai_text_with_refs(prompt, images)  # JPEG 생성 가정
             media_type = "image/jpeg"
 
@@ -435,7 +433,7 @@ async def generate_image(
         # ----- 기본 Gemini provider -----
         elif provider == Provider.GEMINI:
             if reverse:
-                prompt = prompt + _reverse()
+                prompt = prompt + _reverse_test()
             img_bytes = _gemini_text2image(prompt, images)
             media_type = "image/jpeg"
 
@@ -444,7 +442,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "snow_night requires at least one image")
             if reverse:
-                styled = _style_prompt_snow_night() + _reverse()
+                styled = _style_prompt_snow_night() + _reverse_test()
             else:
                 styled = _style_prompt_snow_night()
 
