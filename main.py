@@ -113,8 +113,9 @@ def _style_prompt_pixel_art() -> str:
     return (
         "Study the pixel art style of Everskies, and imitate the way it depicts body shape, facial features and expressions, clothing, and hairstyle. "
         "Using the hairstyle, outfit, and accessories of the person in the attached image, create a full-body character illustration. "
+        "The background should be transparent (PNG), and only the complete character should be included. "
         "The character should be full size and must not be cropped or cut off at the top or bottom (there should be a slight gap). "
-        "Make the background to solid white color background."
+        "Also, white-colored areas in the character (such as eyes, dress, etc.) should not be transparent — they should be filled with actual white color. "
     )
 
 def _style_prompt_ac_style() -> str:
@@ -122,10 +123,9 @@ def _style_prompt_ac_style() -> str:
         "Study the 3D character illustration style of the Nintendo Switch game Animal Crossing, "
         "and follow its way of depicting facial features, clothing, and hairstyles. Using that style, "
         "draw an illustration of the person in the attached image, replicating their hairstyle and clothing "
-        "accessories. Create a warm and lively atmosphere by using "
+        "accessories. Make the background transparent, and create a warm and lively atmosphere by using "
         "bright sunlight and soft shadows under natural light. The character should look like one that appears "
         "in an actual Animal Crossing gameplay screen. Make sure the 3D aspect is clearly shown. "
-        "Make the background to solid white color background."
     )
 
 def _reverse() -> str:
@@ -454,7 +454,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "pixel_art requires at least one image")
             styled = _style_prompt_pixel_art()
-            img_bytes = _gemini_text2image(styled, images)       # PNG + 투명 배경 생성
+            img_bytes = _openai_text_with_refs_transparent(styled, images)       # PNG + 투명 배경 생성
             media_type = "image/png"
 
         # ----- 동물의 숲 스타일 스티커 (PNG + transparent) -----
@@ -462,7 +462,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "ac_style requires at least one image")
             styled = _style_prompt_ac_style()
-            img_bytes = _gemini_text2image(styled, images)       # PNG + 투명 배경 생성
+            img_bytes = _openai_text_with_refs_transparent(styled, images)       # PNG + 투명 배경 생성
             media_type = "image/png"
 
         else:
