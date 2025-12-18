@@ -140,13 +140,9 @@ def _reverse() -> str:
 
 def _reverse_test() -> str:
     return (
-        """
-; Based on the input above, generate a humorous image depicting a 'Role Reversal'.
-1. Concept: Swap the subject and object of the user's input to create an absurd situation (e.g., A building walking into a person, A hamburger eating a human).
-2. Style: Korean Internet Meme Style (Jjal-bang vibe). Use a 'B-class' comic sensibility.
-3. Visuals: Use a Fish-eye lens effect or dramatic close-up angles. Characters should have hilariously exaggerated, serious, or bewildered facial expressions.
-4. Constraint: Do NOT include any text, captions, or speech bubbles in the image. Pure visual comedy only.
-"""
+        "; 이전 프롬프트들을 기억하고 다음의 요구 사항에 따라 이미지를 생성하세요. 이전 프롬프트 속의 주어와 목적어를 바꾸는 등의 방식을 사용하여 한국 스타일의 웃긴 밈 이미지를 만드세요. "
+        "예를 들어, '개가 사람을 문다'를 '사람이 개를 문다'로 바꾸거나, '사람이 건물로 가다'를 '건물이 사람에게 가다'와 같이 상황을 뒤바꾸어 표현하세요. "
+        "이미지에 자막이나 말풍선을 추가하지 마세요."
     )
 
 # ==========================================
