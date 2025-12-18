@@ -130,18 +130,8 @@ def _style_prompt_ac_style() -> str:
 
 def _reverse() -> str:
     return (
-        " Remember the previous prompts and generate an image according to the following requirements. "
-        "Generate a paradoxical meme image using methods such as swapping the subject and object in the remembered prompt. "
-        "For example, switch things around like changing \'a dog bites a person\' to "
-        "\'a person bites a dog,\' or \'a person goes to a building\' to \'a building comes to a person.\' "
-        "Do not add new subtitles or sentences in the image if there was no request in previous prompts. If an image is attached, maintain the original art style;"
-        " if no image is attached, generate an image that fits the Korean meme style."
-    )
-
-def _reverse_test() -> str:
-    return (
         "; 이전 프롬프트들을 기억하고 다음의 요구 사항에 따라 이미지를 생성하세요. 이전 프롬프트 속의 주어와 목적어를 바꾸는 등의 방식을 사용하여 한국 스타일의 웃긴 밈 이미지를 만드세요. "
-        "예를 들어, '개가 사람을 문다'를 '사람이 개를 문다'로 바꾸거나, '사람이 햄버거를 먹는다'를 '햄버거가(햄버거 괴물이) 사람을 먹는다'와 같이 상황을 뒤바꾸어 표현하세요. "
+        "예를 들어, '개가 사람을 문다'를 '사람이 개를 문다'로 바꾸는 것과 같이 상황을 뒤바꾸어 표현하세요. "
         "이전 프롬프트가 주어와 목적어가 없는 단어나 문장이라면, 그 단어나 문장과 관련된 역설적이고 어이없고 웃긴 밈 이미지를 만드세요. 이미지에 자막이나 말풍선을 추가하지 마세요. "
     )
 
@@ -420,12 +410,12 @@ async def generate_image(
             if not images:
                 logger.info("[generate_image] GPT text2image (no refs)")
                 if reverse:
-                    prompt = prompt + _reverse_test()
+                    prompt = prompt + _reverse()
                 img_bytes = _openai_text2image(prompt)              # JPEG 생성 가정
             else:
                 logger.info(f"[generate_image] GPT text2image with refs (count={len(images)})")
                 if reverse:
-                    prompt = prompt + _reverse_test()
+                    prompt = prompt + _reverse()
                 img_bytes = _openai_text_with_refs(prompt, images)  # JPEG 생성 가정
             media_type = "image/jpeg"
 
@@ -433,7 +423,7 @@ async def generate_image(
         # ----- 기본 Gemini provider -----
         elif provider == Provider.GEMINI:
             if reverse:
-                prompt = prompt + _reverse_test()
+                prompt = prompt + _reverse()
             img_bytes = _gemini_text2image(prompt, images)
             media_type = "image/jpeg"
 
@@ -442,7 +432,7 @@ async def generate_image(
             if not images:
                 raise HTTPException(400, "snow_night requires at least one image")
             if reverse:
-                styled = _style_prompt_snow_night() + _reverse_test()
+                styled = _style_prompt_snow_night() + _reverse()
             else:
                 styled = _style_prompt_snow_night()
 
